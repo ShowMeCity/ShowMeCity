@@ -1,0 +1,27 @@
+.loading_screen{
+    background-image: url('https://i.imgur.com/U5Ccc0f.gif');
+    background-position: center;
+    width: 100vw;
+    height: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-size: 40%;
+    z-index: 10;
+    /* animation: loading_screen_animation 1s linear; */
+
+}
+
+.loading_screen_animation{
+    animation: loading_screen_animation 2s linear;
+}
+
+
+@keyframes loading_screen_animation{
+   from{
+    opacity: 1;
+   }
+   to{
+    opacity: 0;
+   }
+}

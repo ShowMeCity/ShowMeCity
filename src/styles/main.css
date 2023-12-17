@@ -1,0 +1,18 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+}
+
+button:active {
+    cursor: pointer;
+    scale: 0.9;
+    transition: 0.1s;
+    box-shadow: 0px 0px 2px 2px rgba(255, 255, 255, 0.717);
+}
