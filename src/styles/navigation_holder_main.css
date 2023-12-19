@@ -1,0 +1,88 @@
+/* Shared styles for both .navigation_holder_main and .navigation_holder_main_close */
+.navigation_holder_main,
+.navigation_holder_main_close {
+    transition: 0.5s !important;
+    bottom: 0;
+    border-radius: 50px !important;
+    overflow: hidden !important;
+}
+
+/* Default styles for .navigation_holder_main */
+.navigation_holder_main {
+    height: 130px !important;
+    border-radius: 10px !important;
+    transform: scaleX(1) !important;
+}
+
+/* Shared styles for .navigation_holder_main_close and its hover state */
+.navigation_holder_main_close,
+.navigation_holder_main_close:hover {
+    height: 40px;
+    border-radius: 50px !important;
+    transform: scaleX(0.45);
+}
+
+/* Styles for .navigation_holder_main_close */
+.navigation_holder_main_close {
+    opacity: 0.6;
+    background: black;
+    animation: alternate 0.5s navigation_holder_main_close_after;
+}
+
+/* Hover state for .navigation_holder_main_close */
+.navigation_holder_main_close:hover {
+    scale: 0.9;
+}
+
+/* ::after pseudo-element for .navigation_holder_main_close and .animation_audio */
+.navigation_holder_main_close::after,
+.animation_audio::after {
+    content: "";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: 0.5s;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    animation: alternate 0.5s navigation_holder_main_close_after;
+}
+
+.navigation_holder_main_close::after{
+    background: black;
+}
+/* Keyframes animation for .navigation_holder_main_close_after */
+@keyframes navigation_holder_main_close_after {
+    0% {
+        background-color: rgba(0, 0, 0, 0.7);
+        opacity: 1;
+    }
+
+    30% {
+        background-color: rgba(0, 0, 0, 0.766);
+    }
+
+    100% {
+        background-color: #000000 !important;
+        opacity: 0.3 !important;
+    }
+}
+
+/* Styles for .animation_audio */
+.animation_audio {
+    transition: 0.2s;
+    background: black !important;
+    background-size: contain !important;
+    z-index: 10000 !important;
+}
+
+.animation_audio::after {
+    background: url('https://i.gifer.com/ES9d.gif') !important;
+    background-size: 100% !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}

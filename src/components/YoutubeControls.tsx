@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import IconSoundOff from "../styles/svg/SoundOff";
 import IconSoundOn from "../styles/svg/SoundOn";
 import { MainStateContext } from "../App";
@@ -6,8 +6,8 @@ import { useContext, useState } from "react";
 import { playBackRate } from "../state/AppInteface";
 const YoutubeControls = () => {
     const { appState, updateState } = useContext(MainStateContext)!;
-    const [playBackRate, setPlayBackRate] = useState(appState.playBackRate);
-    console.log('YoutubeControls', playBackRate);
+    const [playBackRate, setPlayBackRate] = useState<playBackRate>(appState.playBackRate);
+
     const button_styles: React.CSSProperties = {
         border: 'none',
         height: '40px',
@@ -49,13 +49,18 @@ const YoutubeControls = () => {
     }
 
     const toogleMute = () => {
-        updateState({ ...appState, isMute: !appState.isMute });
+        updateState(prev => ({ ...prev, isMute: !appState.isMute }));
     }
 
     const changePlayBackRate = (rate: number) => {
-        updateState({ ...appState, playBackRate: rate });
+        if (rate == playBackRate) return
+        updateState(prev => ({ ...prev, playBackRate: rate }));
         setPlayBackRate(rate);
     }
+
+    useEffect(() => {
+        setPlayBackRate(appState.playBackRate);
+    }, [appState.playBackRate]);
 
     return (
         <>
@@ -68,9 +73,9 @@ const YoutubeControls = () => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td style={td_th_styles}><button className="speed_btn" style={(playBackRate === 0.5) ? button_styles_active: button_styles} onClick={() => changePlayBackRate(0.5)}>x0.5</button></td>
-                        <td style={td_th_styles}><button className="speed_btn" style={(playBackRate === 1) ? button_styles_active: button_styles} onClick={() => changePlayBackRate(1)}>x1</button></td>
-                        <td style={td_th_styles}><button className="speed_btn" style={(playBackRate === 2) ? button_styles_active: button_styles} onClick={() => changePlayBackRate(2)}>x2</button></td>
+                        <td style={td_th_styles}><button className="speed_btn" style={(playBackRate === 0.5) ? button_styles_active : button_styles} onClick={() => changePlayBackRate(0.5)}>x0.5</button></td>
+                        <td style={td_th_styles}><button className="speed_btn" style={(playBackRate === 1) ? button_styles_active : button_styles} onClick={() => changePlayBackRate(1)}>x1</button></td>
+                        <td style={td_th_styles}><button className="speed_btn" style={(playBackRate === 2) ? button_styles_active : button_styles} onClick={() => changePlayBackRate(2)}>x2</button></td>
                         <td style={td_th_styles}><button className="noise_btn" style={button_styles} onClick={() => toogleMute()} > {appState.isMute ? <IconSoundOff /> : <IconSoundOn />}</button></td>
                     </tr>
                 </tbody>

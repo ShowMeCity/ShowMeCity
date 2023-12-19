@@ -12,8 +12,10 @@ const YoutubeVideoPlayer: React.FC = () => {
         controls: 0,
         enablejsapi: 1,
         fs: 0,
+        loop: 1,
+        start: Math.random() * 50 + 40,
         iv_load_policy: 3,
-        origin: 'http://localhost:3000',
+        origin: 'http://localhost:5173',
     }
     const opts = {
         height: '100%',
@@ -28,41 +30,44 @@ const YoutubeVideoPlayer: React.FC = () => {
         width: '100%',
         height: '100%',
         zIndex: 0,
+        scale: '1.3',
     }
 
     const onReady = (e: YouTubeEvent) => {
         playerRef.current = e.target;
         e.target.setPlaybackQuality('hd1080');
-        // toggleMute();
     }
 
     const onStateChange = (e: YouTubeEvent) => {
-        switch (e.data) {
+        const playerState = e.data;
+
+        switch (playerState) {
             case -1:
                 console.log('unstarted');
-                updateState({...appState, isLoading: true, isPlaying: false });
+                updateState(prev => ({ ...prev, isLoading: true, isPlaying: false }));
                 break;
             case 0:
                 console.log('ended');
-                updateState({ ...appState, isLoading: true, isPlaying: false, });
+                updateState(prev => ({ ...prev, isLoading: true, isPlaying: false }));
                 break;
             case 1:
                 console.log('playing');
-                updateState({ ...appState, isLoading: false, isPlaying: true, });
+                updateState(prev => ({ ...prev, isLoading: false, isPlaying: true }));
                 break;
             case 2:
                 console.log('paused');
-                updateState({ ...appState, isLoading: true, isPlaying: false });
+                updateState(prev => ({ ...prev, isLoading: true, isPlaying: false }));
                 break;
             case 3:
                 console.log('buffering');
-                updateState({ ...appState, isLoading: true, isPlaying: false, });
+                updateState(prev => ({ ...prev, isLoading: true, isPlaying: false }));
                 break;
             default:
                 console.log('default');
                 break;
         }
     }
+
 
     const toggleMute = () => {
 
@@ -80,10 +85,10 @@ const YoutubeVideoPlayer: React.FC = () => {
 
     const playNextVideo = (url: string) => {
         playerRef.current.loadVideoById(url);
-        console.log('playNextVideo', url);
     }
 
     useEffect(() => {
+        console.log('Mute', appState.isMute);
         try {
             toggleMute();
         } catch (e) {
@@ -91,15 +96,17 @@ const YoutubeVideoPlayer: React.FC = () => {
         }
     }, [appState.isMute])
 
-    useEffect(()=>{
+    useEffect(() => {
+        console.log('Changing Video', appState.currentVideoId);
         try {
             playNextVideo(appState.currentVideoId);
         } catch (e) {
             console.log('Changing Video');
         }
-    },[appState.currentVideoId])
+    }, [appState.currentVideoId])
 
     useEffect(() => {
+        console.log('Changing PlayBackRate', appState.playBackRate);
         try {
             changePlayBackRate(appState.playBackRate);
         } catch (e) {
@@ -107,9 +114,9 @@ const YoutubeVideoPlayer: React.FC = () => {
         }
     }, [appState.playBackRate])
 
-
+    console.log("YoutubeVideoPlayer Rendered");
     return (<>
-        <Youtube videoId={appState.currentVideoId} ref={playerRef}  opts={opts} onReady={onReady} onStateChange={onStateChange} style={videoStyles} />
+        <Youtube videoId={appState.currentVideoId} ref={playerRef} opts={opts} onReady={onReady} onStateChange={onStateChange} style={videoStyles} />
     </>);
 }
 

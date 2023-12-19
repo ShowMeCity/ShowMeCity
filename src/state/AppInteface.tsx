@@ -12,11 +12,30 @@ export interface AppState {
     currentCity: string;
     currentVideoId: string;
     playBackRate: playBackRate;
+    radios: radioInterface[] | [];
+    currentPlayingIndex: number;
 }
 
 export interface PartialAppState extends Partial<AppState> { }
 
 export interface MyContextProps {
     appState: AppState;
-    updateState: (state: AppState) => void;
+    updateState: React.Dispatch<React.SetStateAction<AppState>>;
+    apiDatas: ApiData[];
+}
+
+export interface ApiData {
+    country: string;
+    cities: citiesInterface[] | [];
+    radios: radioInterface[] | [];
+}
+
+ export interface radioInterface {
+    stationName: string;
+    src: string;
+}
+
+ export interface citiesInterface {
+    city: string;
+    orginalUrl: string[];
 }
