@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "homepage": "http://ShowMeCity.github.io/ShowMeCity/",
+  "homepage": "https://show-me-city.vercel.app/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
