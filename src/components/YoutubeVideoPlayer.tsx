@@ -23,12 +23,13 @@ const YoutubeVideoPlayer: React.FC = () => {
 
     useEffect(() => {
        if (getComputedVideoPlayer.value === undefined) return
+       console.log("videoPlayerSignal", getComputedVideoPlayer.value)
       playNextVideo(getComputedVideoSignal.value[0].currentVideoId)
     },[getComputedVideoPlayer.value === undefined]);
 
     return (
         <div style={youtubeStyle}>
-            <Youtube style={youtubeStyle} opts={opts} onReady={(e) => onReady(e, playerRef)} onStateChange={e => onStateChange(e, playerRef)} />
+            <Youtube videoId={"Sadsad"} style={youtubeStyle} opts={opts} onReady={(e) => onReady(e, playerRef)} onStateChange={e => onStateChange(e, playerRef)} />
         </div>);
 };
 
@@ -135,7 +136,7 @@ const playerVars = {
     loop: 1,
     start: Math.random() * 50 + 40,
     iv_load_policy: 3,
-    origin: 'https://showmecity.github.io/ShowMeCity/',
+    origin: 'https://show-me-city.vercel.app/',
 }
 const opts = {
     height: '100%',
