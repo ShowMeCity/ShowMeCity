@@ -1,84 +1,106 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect } from "react";
 import LoadingScreen from "./components/LoadingScreen";
 import YouTubeVideoPlayer from "./components/YoutubeVideoPlayer";
-import { AppState, MyContextProps, ApiData } from "./state/AppInteface";
 import TransparentScreen from "./components/TransparentScreen";
-import { Api } from "./connections/Api";
 import NavWrapper from "./components/NavWrapper";
+import { effect, signal } from "@preact/signals-react";
+import { Api } from "./connections/Api";
+import { ApiData, VideoInterface } from "./state/AppInteface";
 
-export const MainStateContext = React.createContext<MyContextProps | undefined>(undefined);
 
+window.onload = () => {
+    const buyMeACoffeeBtn = document.getElementById("bmc-wbtn");
+
+    function simulateButtonClick() {
+        console.log("Clicking on Buy Me A Coffee button");
+        if (buyMeACoffeeBtn) {
+            buyMeACoffeeBtn.click();
+        }
+    }
+    // Initial click after 1 minute
+    setTimeout(() => {
+        simulateButtonClick();
+        // Click again every 10 minutes
+        setInterval(() => {
+            simulateButtonClick();
+        }, 10 * 60 * 1000); // 10 minutes in milliseconds
+    }, 1 * 60 * 1000);
+}
 
 
 const App: React.FC = () => {
-    const [state, setState] = useState<AppState>({
-        isLoading: true,
-        isMute: false,
-        isPlaying: false,
-        currentCountry: 'Switzerland',
-        currentCity: 'Grindelwald',
-        currentVideoId: 'b-WViLMs_4c',
-        playBackRate: 1,
-        radios: [{
-            stationName: 'Loading',
-            src: 'https://www.youtube.com/watch?v=i4sorpyHBg8',
-        }],
-        currentPlayingIndex: 0,
-    });
-
-    const [datas, setDatas] = useState<ApiData[]>([{ country: "Loading", cities: [], radios: [] }]);
-
-    useEffect(() => {
-        console.log("App Mounted");
-        Api.get()
-            .then((data) => {
-                setDatas(data);
-                console.log("Fresh Data", data);
-                const randomCountryIndex = Math.floor(Math.random() * data.length);
-                const randomCityIndex = Math.floor(Math.random() * data[randomCountryIndex].cities.length);
-                const radios = data[randomCountryIndex].radios;
-
-                setState(e => ({
-                    ...e,
-                    currentCountry: data[randomCountryIndex].country,
-                    currentCity: data[randomCountryIndex].cities[randomCityIndex].city,
-                    radios: radios,
-                    currentVideoId: data[randomCountryIndex].cities[randomCityIndex].orginalUrl[
-                        Math.random() * data[randomCountryIndex].cities[randomCityIndex].orginalUrl.length | 0
-                    ],
-                }));
-                console.log("Random Country", data[randomCountryIndex]);
-            })
-            .catch((err) => {
-                console.log(err);
-                document.write(err);
-            });
-    }, []);
-
-    const main_wrapper: React.CSSProperties = {
-        overflow: 'hidden',
-        width: '100vw',
-        height: '100vh',
-        position: 'relative',
-    };
-
-    const contextValue: MyContextProps = {
-        appState: state,
-        updateState: setState,
-        apiDatas: datas,
-    };
-
     return (
         <>
-            <div style={main_wrapper}>
-                <MainStateContext.Provider value={contextValue}>
-                    {state.isLoading ? <LoadingScreen /> : <TransparentScreen />}
-                    <YouTubeVideoPlayer />
-                    <NavWrapper />
-                </MainStateContext.Provider>
-            </div>
+            <NavWrapper />
+            {isPlaying.value ? <TransparentScreen /> : <LoadingScreen />}
+            <YouTubeVideoPlayer />
         </>
     );
+};
+
+const initAppData: ApiData[] = [{
+    country: "Loading...",
+    cities: [{
+        city: "Loading",
+        orginalUrl: [],
+    }],
+    radios: [{
+        stationName: "Loading",
+        src: "error",
+    }],
+}];
+
+const initVideoData: VideoInterface[] = [{
+    country: "Loading",
+    city: "Loading",
+    currentVideoId: "Loading",
+    radios: [{
+        stationName: "Loading",
+        src: ""
+    }]
+}];
+
+export const apiDatas = signal<ApiData[]>(initAppData);
+export const playBackSignal = signal<number>(1);
+export const muteSignal = signal<boolean>(false);
+export const videoSignal = signal<VideoInterface[]>(initVideoData);
+export const radioIndex = signal<number>(0);
+export const isPlaying = signal<boolean>(false);
+
+const getRandomCity = (apiDatas: ApiData[]): VideoInterface => {
+    const randomCountryIndex = Math.floor(Math.random() * apiDatas.length);
+    const randomCityIndex = Math.floor(Math.random() * apiDatas[randomCountryIndex].cities.length);
+    const randomCity = apiDatas[randomCountryIndex].cities[randomCityIndex];
+    return {
+        city: randomCity.city,
+        country: apiDatas[randomCountryIndex].country,
+        currentVideoId: randomCity.orginalUrl[Math.floor(Math.random() * randomCity.orginalUrl.length)],
+        radios: apiDatas[randomCountryIndex].radios.length === 0 ? [{ stationName: "No Radio", src: "" }] : apiDatas[randomCountryIndex].radios
+    };
+};
+
+const handleApiData = (res: ApiData[]) => {
+    apiDatas.value = res;
+    videoSignal.value = [getRandomCity(res)];
+};
+
+const handleError = (err: Error) => {
+    console.error(err);
+    // Handle error (e.g., display a user-friendly message)
+    alert("Error: " + err.message);
+};
+
+effect(() => {
+    Api.get()
+        .then(handleApiData)
+        .catch(handleError);
+});
+
+const main_wrapper: React.CSSProperties = {
+    overflow: 'hidden',
+    width: '100vw',
+    height: '100vh',
+    position: 'relative',
 };
 
 export default App;

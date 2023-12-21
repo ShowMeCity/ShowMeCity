@@ -1,9 +1,16 @@
+import { Signal } from "@preact/signals-react";
+
 export enum playBackRate {
     "x0.5" = 0.5,
     "x1" = 1,
     "x2" = 2,
 }
-
+export interface VideoInterface {
+    country: string;
+    city: string;
+    currentVideoId: string;
+    radios:radioInterface[];
+}
 export interface AppState {
     isLoading: boolean;
     isPlaying: boolean;
@@ -11,6 +18,7 @@ export interface AppState {
     currentCountry: string;
     currentCity: string;
     currentVideoId: string;
+    isAudioPlaying: boolean;
     playBackRate: playBackRate;
     radios: radioInterface[] | [];
     currentPlayingIndex: number;
@@ -30,12 +38,12 @@ export interface ApiData {
     radios: radioInterface[] | [];
 }
 
- export interface radioInterface {
-    stationName: string;
-    src: string;
+export interface radioInterface {
+    stationName: string | undefined;
+    src: string | undefined;
 }
 
- export interface citiesInterface {
+export interface citiesInterface {
     city: string;
-    orginalUrl: string[];
+    orginalUrl: string[] | [];
 }

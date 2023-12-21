@@ -1,79 +1,74 @@
-import React, { useEffect, useRef } from "react";
-import { MyContextProps, radioInterface } from "../state/AppInteface";
-import { MainStateContext } from "../App";
-import { useContext } from "react";
-
-
+import React, { useContext, useEffect, useMemo, useRef } from "react";
+import { apiDatas, playBackSignal, videoSignal } from "../App";
+import { computed } from "@preact/signals-react";
+import { VideoInterface } from "@/state/AppInteface";
 
 const CountrySelector = () => {
-    const { appState, updateState, apiDatas }: MyContextProps = useContext(MainStateContext)!;
     const selectOption = useRef<HTMLSelectElement>(null);
+
     useEffect(() => {
-        selectOption.current!.value = appState.currentCity;
+        if (selectOption.current) {
+            selectOption.current.value = videoSignal.value[0].city;
+        }
     }, [selectOption.current]);
 
-    const select_holder_styles: React.CSSProperties = {
-        width: '100%',
-    }
-
-    const select_styles: React.CSSProperties = {
-        width: '100%',
-        height: '40px',
-        borderRadius: '2px',
-        marginBottom: '10px',
-        border: 'none',
-        paddingLeft: '5px',
-        backgroundColor: 'rgba(255,255,255,0.3)',
-        color: 'white',
-    }
-    const onOptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedCity = e.target.value;
-
-        const foundCity = apiDatas
-            .flatMap((country) => country.cities.map((city) => ({ ...city, country: country.country, radios: country.radios })))
-            .find((city) => city.city === selectedCity);
-        if (foundCity) {
-            const { city, orginalUrl, country, radios } = foundCity;
-            onOptionClick(city, country, orginalUrl[Math.random() * orginalUrl.length | 0], radios);
-        }
-    };
-
-    const onOptionClick = (city: string, country: string, orginalUrl: string, radios: radioInterface[]) => {
-        updateState((prev) => ({
-            ...prev,
-            currentCity: city,
-            currentCountry: country,
-            currentVideoId: orginalUrl,
-            isLoading: true,
-            isPlaying: false,
-            playBackRate: 1,
-            radios: radios,
-        }));
-    };
-
-    console.log("CountrySelector Rendered");
-
     return (
-        <div style={select_holder_styles} >
-            <select ref={selectOption} id="country_selector" style={select_styles} onChange={onOptionChange} >
-                {
-                    apiDatas.map((country: any, index: number) => {
-                        return (
-                            <optgroup key={index} label={country.country}>{
-                                country.cities.map((city: any, index: number) => {
-                                    return (
-                                        <option key={index} value={city.city} >{city.city}</option>
-                                    );
-                                })
-                            }</optgroup>
-                        );
-                    })
-
-                }
-
+        <div style={select_holder_styles}>
+            <select ref={selectOption} id="country_selector" style={select_styles} onChange={handleSelectChange}>
+                {apiDatas.value.map(({ country, cities }: any, index: number) => (
+                    <optgroup key={index} label={country}>
+                        {cities.map(({ city }: any, index: number) => (
+                            <option key={index} value={city} data-country={country}>
+                                {city}
+                            </option>
+                        ))}
+                    </optgroup>
+                ))}
             </select>
         </div>
     );
-}
+};
+
+const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const country = e.target.selectedOptions[0].dataset.country!;
+    const city = e.target.value;
+    playBackSignal.value = 1;
+    videoSignal.value = [{
+        ...getComputedVideoSignal.value,
+        city: city,
+        country: country,
+        currentVideoId: getRandomVideoIdByCountryAndCity(country, city),
+        radios: getRadio(country)
+    }];
+};
+
+const getComputedVideoSignal = computed(() => videoSignal.value);
+
+const getRadio = (country: string) => {
+    const countryData = getComputedApiData.value.find(data => data.country === country);
+    return countryData?.radios.length === 0 ? [{ stationName: "No Radio", src: "" }] : countryData?.radios || [{ stationName: "No Radio", src: "" }];
+};
+
+const getRandomVideoIdByCountryAndCity = (country: string, city: string) => {
+    const countryCityData = getComputedApiData.value.find(data => data.country === country)?.cities.find(cityData => cityData.city === city);
+    return countryCityData?.orginalUrl[Math.floor(Math.random() * (countryCityData?.orginalUrl.length || 1))] || "";
+};
+
+const getComputedApiData = computed(() => apiDatas.value);
+
+const select_holder_styles: React.CSSProperties = {
+    width: '100%',
+};
+
+const select_styles: React.CSSProperties = {
+    width: '100%',
+    height: '40px',
+    borderRadius: '2px',
+    marginBottom: '10px',
+    border: 'none',
+    paddingLeft: '5px',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    color: 'white',
+};
 
 export default CountrySelector;

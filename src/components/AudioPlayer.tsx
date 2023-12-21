@@ -2,98 +2,135 @@ import React, { useEffect, useState, useRef } from "react";
 import IconPlayFill from "../styles/svg/PlayIcon";
 import IconBackward from "../styles/svg/PreviousIcon";
 import IconForward from "../styles/svg/NextIcon";
-import { useContext } from "react";
-import { MainStateContext } from "../App";
-import { MyContextProps, radioInterface } from "../state/AppInteface";
 import IconPause from "../styles/svg/PauseIcon";
+import { videoSignal } from "../App";
+import { computed } from "@preact/signals-react";
 
 const AudioPlayer = () => {
-    const { appState }: MyContextProps = useContext(MainStateContext)!;
     const audioRef = useRef(new Audio());
-    const [radios, setRadios] = useState<radioInterface[]>(appState.radios);
-    const [currentIndex, setCurrentIndex] = useState<number>(Math.floor(Math.random() * radios.length));
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-    const control_holder_styles: React.CSSProperties = {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-    };
+    useEffect(() => {
+        try {
+            const currentRadio = getComputedVideoSignal.value[0].radios[currentIndex];
+            if (audioRef.current && currentRadio && currentRadio.src) {
+                audioRef.current.src = currentRadio.src;
+                setCurrentIndex(0);
+            }
+        } catch (e) {
+            console.error("Error setting audio source:", e);
+        }
+    }, [getComputedVideoSignal.value[0].radios]);
 
-    const audio_text_styles: React.CSSProperties = {
-        color: 'white',
-        fontSize: '1rem',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: '20px',
-    };
+    useEffect(() => {
+        try {
+            if (audioRef.current) {
+                isPlaying ? audioRef.current.play() : audioRef.current.pause();
+            }
+        } catch (e) {
+            console.error("Error playing/pausing audio:", e);
+        }
+    }, [isPlaying]);
 
-    const div_button_holder_styles: React.CSSProperties = {
-        color: 'white',
+    useEffect(() => {
+        try {
+            const currentRadio = getComputedVideoSignal.value[0].radios[currentIndex];
+            if (audioRef.current) {
+                audioRef.current.src = currentRadio.src!;
+                if (audioRef.current.networkState === 3) {
+                    audioRef.current.play();
+                } else if (audioRef.current.networkState === 3) {
+                    audioRef.current.pause();
+                }
+            }
+        } catch (e) {
+            console.error("Error setting audio source and playing:", e);
+        }
+    }, [currentIndex]);
+    
+    const handlePlayPause = () => {
+        if (getComputedVideoSignal.value[0].radios[currentIndex].src === "") {
+            return setIsPlaying(false);
+        }
+        setIsPlaying((prevState) => !prevState);
     };
-
-    const button_styles: React.CSSProperties = {
-        border: 'none',
-        height: '40px',
-        width: '40px',
-        borderRadius: '5px',
-        backgroundColor: 'rgba(0,0,0,0.0)',
-        color: 'white',
-        margin: '0px 5px',
-        fontSize: '1rem',
-        textAlign: 'center',
-    };
-
-    const onPlayPauseClick = () => {
-        if (isPlaying) {
-            audioRef.current.pause();
+    const handleForward = () => {
+        if (currentIndex < getComputedVideoSignal.value[0].radios.length - 1) {
+            setCurrentIndex((prevIndex) => prevIndex + 1);
         } else {
-            audioRef.current.play();
+            setCurrentIndex(0);
         }
-        setIsPlaying((prevIsPlaying) => !prevIsPlaying);
     };
 
-    const onPreviousClick = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === 0 ? radios.length - 1 : prevIndex - 1));
-    };
-
-    const onNextClick = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === radios.length - 1 ? 0 : prevIndex + 1));
-    };
-
-    useEffect(() => {
-        const currentRadio = radios[currentIndex];
-        audioRef.current.src = currentRadio ? currentRadio.src : "";
-
-        if (isPlaying) {
-            audioRef.current.play();
+    const handleBackward = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex((prevIndex) => prevIndex - 1);
+        } else {
+            setCurrentIndex(getComputedVideoSignal.value[0].radios.length - 1);
         }
-    }, [currentIndex, radios, isPlaying]);
-
-    useEffect(() => {
-        setRadios(appState.radios);
-    }, [appState.radios]);
+    };
 
     return (
         <>
-            <div style={control_holder_styles}>
-                <center style={audio_text_styles}>
-                    {radios.length === 0 ? "Default Radio" : radios[currentIndex]?.stationName}
+            <div style={styles.controlHolder}>
+                <center style={styles.audioText}>
+                    {getComputedVideoSignal.value[0].radios[currentIndex]?.stationName || "No Radio"}
                 </center>
-                <div style={div_button_holder_styles}>
-                    <button id="play_pause_button" style={button_styles} onClick={onPreviousClick}>
+                <div style={styles.buttonHolder}>
+                    <button id="backwardBtn" style={styles.button} onClick={handleBackward}>
                         <IconBackward />
                     </button>
-                    <button id="mute_button" style={button_styles} onClick={onPlayPauseClick}>
+                    <button id="playPauseBtn" style={styles.button} onClick={() => handlePlayPause()}>
                         {isPlaying ? <IconPause /> : <IconPlayFill />}
                     </button>
-                    <button id="unmute_button" style={button_styles} onClick={onNextClick}>
+                    <button id="forwardBtn" style={styles.button} onClick={handleForward}>
                         <IconForward />
                     </button>
                 </div>
             </div>
         </>
     );
+};
+
+
+
+const getComputedVideoSignal = computed(() => videoSignal.value);
+interface audioStylesInterface {
+    controlHolder: React.CSSProperties;
+    audioText: React.CSSProperties;
+    buttonHolder: React.CSSProperties;
+    button: React.CSSProperties;
+}
+
+
+const styles: audioStylesInterface = {
+    controlHolder: {
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+    },
+    audioText: {
+        color: "white",
+        fontSize: "1rem",
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: "20px",
+    },
+    buttonHolder: {
+        color: "white",
+    },
+    button: {
+        border: "none",
+        height: "40px",
+        width: "40px",
+        borderRadius: "5px",
+        backgroundColor: "rgba(0,0,0,0.0)",
+        color: "white",
+        margin: "0px 5px",
+        fontSize: "1rem",
+        textAlign: "center",
+    },
 };
 
 export default AudioPlayer;

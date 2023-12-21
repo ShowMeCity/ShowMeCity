@@ -1,18 +1,36 @@
-import axios from "axios";
 import { ApiData, citiesInterface } from "@/state/AppInteface";
-
 
 export class Api {
     public static url = "http://10.0.0.199/drive&listen/server.php";
-    public static async get() {
-        const response = await fetch(this.url);
-        if (response.status !== 200) {
-            throw new Error("Api error");
-        }
-        const data: ApiData[] = await response.json();
 
-        return data.sort(this.compareApiData);
+    public static async get() {
+        try {
+            const response = await fetch(this.url);
+
+            if (response.status !== 200) {
+                throw new Error("Api error");
+            }
+
+            const data = await response.json();
+            const datas: ApiData[] = data;
+            const sortedData = datas.sort(this.compareApiData) as ApiData[];
+            return sortedData;
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            return Promise.resolve([{
+                country: "Loading...",
+                cities: [{
+                    city: "Loading",
+                    orginalUrl: [],
+                }],
+                radios: [{
+                    stationName: "Loading",
+                    src: undefined,
+                }],
+            }]);
+        }
     }
+
     public static compareApiData(a: ApiData, b: ApiData): number {
         // First, compare by country
         const countryComparison = a.country.localeCompare(b.country);

@@ -2,9 +2,8 @@
 .navigation_holder_main,
 .navigation_holder_main_close {
     transition: 0.5s !important;
-    bottom: 0;
-    border-radius: 50px !important;
     overflow: hidden !important;
+    box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 /* Default styles for .navigation_holder_main */
@@ -12,6 +11,8 @@
     height: 130px !important;
     border-radius: 10px !important;
     transform: scaleX(1) !important;
+    box-shadow: none;
+    box-shadow:  0px 0px 1px 1px rgba(255, 255, 255, 0.442);
 }
 
 /* Shared styles for .navigation_holder_main_close and its hover state */
