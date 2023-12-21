@@ -29,7 +29,7 @@ const YoutubeVideoPlayer: React.FC = () => {
 
     return (
         <div style={youtubeStyle}>
-            <Youtube videoId={getComputedVideoSignal.value ? getComputedVideoSignal.value[0].currentVideoId : "qPgWV8Rxemo"} style={youtubeStyle} opts={opts} onReady={(e) => onReady(e, playerRef)} onStateChange={e => onStateChange(e, playerRef)} />
+            <Youtube videoId="qPgWV8Rxemo" style={youtubeStyle} opts={opts} onReady={(e) => onReady(e, playerRef)} onStateChange={e => onStateChange(e, playerRef)} />
         </div>);
 };
 
