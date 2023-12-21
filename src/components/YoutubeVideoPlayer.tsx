@@ -135,7 +135,7 @@ const playerVars = {
     loop: 1,
     start: Math.random() * 50 + 40,
     iv_load_policy: 3,
-    origin: 'http://localhost:5173',
+    origin: 'https://showmecity.github.io/ShowMeCity/',
 }
 const opts = {
     height: '100%',

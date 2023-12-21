@@ -1,7 +1,7 @@
 import { ApiData, citiesInterface } from "@/state/AppInteface";
 
 export class Api {
-    public static url = "http://10.0.0.199/drive&listen/server.php";
+    public static url = "https://simrikstudio.com/drive&listen/server.php";
 
     public static async get() {
         try {
