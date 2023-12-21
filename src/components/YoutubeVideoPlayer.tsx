@@ -22,14 +22,14 @@ const YoutubeVideoPlayer: React.FC = () => {
     }, [getComputedVideoSignal.value[0].currentVideoId])
 
     useEffect(() => {
-       if (getComputedVideoPlayer.value === undefined) return
-       console.log("videoPlayerSignal", getComputedVideoPlayer.value)
-      playNextVideo(getComputedVideoSignal.value[0].currentVideoId)
-    },[getComputedVideoPlayer.value === undefined]);
+        if (getComputedVideoPlayer.value === undefined) return
+        console.log("videoPlayerSignal", getComputedVideoPlayer.value)
+        playNextVideo(getComputedVideoSignal.value[0].currentVideoId)
+    }, [getComputedVideoPlayer.value === undefined]);
 
     return (
         <div style={youtubeStyle}>
-            <Youtube videoId={"Sadsad"} style={youtubeStyle} opts={opts} onReady={(e) => onReady(e, playerRef)} onStateChange={e => onStateChange(e, playerRef)} />
+            <Youtube videoId={getComputedVideoSignal.value ? getComputedVideoSignal.value[0].currentVideoId : "qPgWV8Rxemo"} style={youtubeStyle} opts={opts} onReady={(e) => onReady(e, playerRef)} onStateChange={e => onStateChange(e, playerRef)} />
         </div>);
 };
 
