@@ -10,7 +10,7 @@ const AudioPlayer = () => {
     const audioRef = useRef(new Audio());
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
-
+    console.log("audioPlayer"); 
     useEffect(() => {
         try {
             const currentRadio = getComputedVideoSignal.value[0].radios[currentIndex];
@@ -38,9 +38,9 @@ const AudioPlayer = () => {
             const currentRadio = getComputedVideoSignal.value[0].radios[currentIndex];
             if (audioRef.current) {
                 audioRef.current.src = currentRadio.src!;
-                if (audioRef.current.networkState === 3) {
+                if (isPlaying) {
                     audioRef.current.play();
-                } else if (audioRef.current.networkState === 3) {
+                } else {
                     audioRef.current.pause();
                 }
             }
@@ -48,7 +48,7 @@ const AudioPlayer = () => {
             console.error("Error setting audio source and playing:", e);
         }
     }, [currentIndex]);
-    
+
     const handlePlayPause = () => {
         if (getComputedVideoSignal.value[0].radios[currentIndex].src === "") {
             return setIsPlaying(false);
